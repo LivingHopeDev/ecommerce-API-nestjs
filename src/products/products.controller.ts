@@ -25,34 +25,38 @@ export class ProductsController {
 
   @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
   @Post()
-  create(
+  async create(
     @Body() createProductDto: CreateProductDto,
     @CurrentUser() currentUser: UserEntity,
   ): Promise<ProductEntity> {
-    return this.productsService.create(createProductDto, currentUser);
+    return await this.productsService.create(createProductDto, currentUser);
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  async findAll() {
+    return await this.productsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.productsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @CurrentUser() currentUser: UserEntity,
   ) {
-    return this.productsService.update(+id, updateProductDto, currentUser);
+    return await this.productsService.update(
+      +id,
+      updateProductDto,
+      currentUser,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.productsService.remove(+id);
   }
 }
