@@ -72,10 +72,6 @@ export class ReviewsService {
     return review;
   }
 
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
-  }
-
   async remove(id: number) {
     const review = await this.findOne(+id);
     return this.reviewRepository.remove(review);

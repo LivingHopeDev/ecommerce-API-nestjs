@@ -46,14 +46,6 @@ export class ReviewsController {
     return await this.reviewsService.findOne(+id);
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateReviewDto: UpdateReviewDto,
-  ) {
-    return await this.reviewsService.update(+id, updateReviewDto);
-  }
-
   @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
   @Delete(':id')
   async remove(@Param('id') id: string) {
