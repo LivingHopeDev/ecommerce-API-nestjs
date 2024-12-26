@@ -76,8 +76,9 @@ export class ReviewsService {
     return `This action updates a #${id} review`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} review`;
+  async remove(id: number) {
+    const review = await this.findOne(+id);
+    return this.reviewRepository.remove(review);
   }
 
   async findOneByUserAndProduct(userId: number, productId: number) {

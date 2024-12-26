@@ -23,7 +23,7 @@ import { ReviewEntity } from './entities/review.entity';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.USER]))
   @Post()
   async create(
     @Body() createReviewDto: CreateReviewDto,
@@ -54,6 +54,7 @@ export class ReviewsController {
     return await this.reviewsService.update(+id, updateReviewDto);
   }
 
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.reviewsService.remove(+id);

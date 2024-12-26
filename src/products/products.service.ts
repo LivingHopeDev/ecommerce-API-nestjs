@@ -52,7 +52,7 @@ export class ProductsService {
   async remove(id: number) {
     const product = await this.findOne(id);
 
-    await this.productRepository.delete(product.id);
+    await this.productRepository.remove(product);
     return { message: 'Product deleted successfully' };
   }
 }
