@@ -7,6 +7,7 @@ import { ProductEntity } from './entities/product.entity';
 import { CurrentUser } from 'src/utility/decorators/current-user.decorators';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { CategoriesService } from 'src/categories/categories.service';
+import { OrderStatus } from 'src/orders/enums/order-status.enum';
 @Injectable()
 export class ProductsService {
   constructor(
@@ -54,5 +55,17 @@ export class ProductsService {
 
     await this.productRepository.remove(product);
     return { message: 'Product deleted successfully' };
+  }
+
+  async updateStock(id: number, stock: number, status: string) {
+    let product = await this.findOne(id);
+    if (status === OrderStatus.DELIVERED) {
+      product.stock -= stock;
+    } else {
+      product.stock += stock;
+    }
+
+    product = await this.productRepository.save(product);
+    return product;
   }
 }

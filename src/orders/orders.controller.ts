@@ -19,6 +19,7 @@ import { Roles } from 'src/utility/common/user.roles.enum';
 import { CurrentUser } from 'src/utility/decorators/current-user.decorators';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { OrderEntity } from './entities/order.entity';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -44,8 +45,29 @@ export class OrdersController {
 
   @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+    @CurrentUser() currentUser: UserEntity,
+  ) {
+    return await this.ordersService.update(
+      +id,
+      updateOrderStatusDto,
+      currentUser,
+    );
+  }
+
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @Patch(':id/cancel')
+  async cancel(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: UserEntity,
+  ) {
+    return await this.ordersService.cancel(
+      +id,
+
+      currentUser,
+    );
   }
 
   @Delete(':id')
