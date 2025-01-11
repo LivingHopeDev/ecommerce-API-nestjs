@@ -21,7 +21,8 @@ import {
   AuthorizationGuard,
 } from 'src/utility/guards/auth.guard';
 import { Roles } from 'src/utility/common/user.roles.enum';
-import { SerializeInterceptor } from 'src/utility/interceptor/serialize.interceptor';
+import { SerializedIncludes } from 'src/utility/interceptor/serialize.interceptor';
+import { ProductList, ProductsDto } from './dto/product.dto';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -34,9 +35,9 @@ export class ProductsController {
   ): Promise<ProductEntity> {
     return await this.productsService.create(createProductDto, currentUser);
   }
-  @UseInterceptors(SerializeInterceptor)
+  @SerializedIncludes(ProductsDto)
   @Get()
-  async findAll(@Query() query: any): Promise<any> {
+  async findAll(@Query() query: any): Promise<ProductsDto> {
     return await this.productsService.findAll(query);
   }
 

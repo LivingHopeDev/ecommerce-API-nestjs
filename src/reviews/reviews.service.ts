@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -12,6 +17,7 @@ export class ReviewsService {
   constructor(
     @InjectRepository(ReviewEntity)
     private readonly reviewRepository: Repository<ReviewEntity>,
+    @Inject(forwardRef(() => ProductsService))
     private readonly productsService: ProductsService,
   ) {}
   async create(
@@ -71,7 +77,12 @@ export class ReviewsService {
     if (!review) throw new NotFoundException('Review not found.');
     return review;
   }
-
+  async findOneByProduct(id: number) {
+    return await this.reviewRepository.findOne({
+      where: { product: { id: id } },
+      relations: { product: true },
+    });
+  }
   async remove(id: number) {
     const review = await this.findOne(+id);
     return this.reviewRepository.remove(review);

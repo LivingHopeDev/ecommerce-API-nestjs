@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,12 +15,18 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CategoriesService } from 'src/categories/categories.service';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
 import dataSource from 'db/data-source';
+import { OrdersService } from 'src/orders/orders.service';
+import { ReviewsService } from 'src/reviews/reviews.service';
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepository: Repository<ProductEntity>,
     private readonly categoryService: CategoriesService,
+    @Inject(forwardRef(() => ReviewsService))
+    private readonly reviewService: ReviewsService,
+    @Inject(forwardRef(() => OrdersService))
+    private readonly orderService: OrdersService,
   ) {}
   async create(
     createProductDto: CreateProductDto,
@@ -30,7 +42,11 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  async findAll(query: any): Promise<any> {
+  async findAll(query: any): Promise<{
+    products: any[];
+    totalProducts: number;
+    limit: number;
+  }> {
     let filteredTotalProducts: number;
     let limit: number;
     if (!query.limit) {
@@ -85,7 +101,7 @@ export class ProductsService {
       queryBuilder.offset(query.offset);
     }
     const products = await queryBuilder.getRawMany();
-    return products;
+    return { products, totalProducts, limit };
   }
 
   async findOne(id: number) {
@@ -107,9 +123,11 @@ export class ProductsService {
 
   async remove(id: number) {
     const product = await this.findOne(id);
+    const order = await this.orderService.findOneByProduct(product.id); // Checks if the product is already ordered
+    const review = await this.reviewService.findOneByProduct(product.id);
+    if (order || review) throw new BadRequestException('Product is in use');
 
-    await this.productRepository.remove(product);
-    return { message: 'Product deleted successfully' };
+    return this.productRepository.remove(product);
   }
 
   async updateStock(id: number, stock: number, status: string) {
