@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -19,6 +21,7 @@ import {
   AuthorizationGuard,
 } from 'src/utility/guards/auth.guard';
 import { Roles } from 'src/utility/common/user.roles.enum';
+import { SerializeInterceptor } from 'src/utility/interceptor/serialize.interceptor';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -31,10 +34,10 @@ export class ProductsController {
   ): Promise<ProductEntity> {
     return await this.productsService.create(createProductDto, currentUser);
   }
-
+  @UseInterceptors(SerializeInterceptor)
   @Get()
-  async findAll() {
-    return await this.productsService.findAll();
+  async findAll(@Query() query: any): Promise<any> {
+    return await this.productsService.findAll(query);
   }
 
   @Get(':id')
